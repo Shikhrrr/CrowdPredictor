@@ -31,13 +31,13 @@ function MapUpdater({ position }) {
     return null;
 }
 
-// Gradient color generator
+// Gradient color generator with refined colors
 const getColor = (intensity) => {
-    if (intensity < 0.3) return "#00f"; // blue
-    if (intensity < 0.5) return "#0f0"; // green
-    if (intensity < 0.7) return "#ff0"; // yellow
-    if (intensity < 0.9) return "#f90"; // orange
-    return "#f00"; // red
+    if (intensity < 0.3) return "#22c55e"; // green-500
+    if (intensity < 0.5) return "#84cc16"; // lime-500
+    if (intensity < 0.7) return "#eab308"; // yellow-500
+    if (intensity < 0.9) return "#f97316"; // orange-500
+    return "#ef4444"; // red-500
 };
 
 // Render the polyline in segments with gradient
@@ -57,8 +57,8 @@ const GradientPolyline = ({ path }) => {
                     [end.lat, end.lng],
                 ]}
                 color={getColor(intensity)}
-                weight={6}
-                opacity={0.9}
+                weight={4}
+                opacity={0.8}
             />
         );
     }
@@ -91,8 +91,8 @@ const Travel = () => {
         };
     }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        if (!source || !destination) return;
         const res = await fetch("/api/get-path", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -111,84 +111,134 @@ const Travel = () => {
     };
 
     return (
-        <div className="relative min-h-screen font-sans bg-white">
-            {/* Orange background with curved bottom */}
-            <div
-                className="absolute top-0 left-0 w-full"
-                style={{
-                    zIndex: 0,
-                    height: "55vh",
-                    background: "linear-gradient(90deg, #ff9100 0%, #ff6d00 100%)",
-                }}
-            >
-                <svg
-                    viewBox="0 0 1440 320"
-                    className="absolute bottom-0 left-0 w-full"
-                    style={{ height: "120px" }}
-                    preserveAspectRatio="none"
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+            {/* Header Section */}
+            <div className="relative">
+                <div 
+                    className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 pt-16 pb-40"
+                    style={{
+                        borderBottomLeftRadius: "50% 60px",
+                        borderBottomRightRadius: "50% 60px"
+                    }}
                 >
-                    <path
-                        fill="#fff"
-                        d="M0,256 C480,320 960,160 1440,256 L1440,320 L0,320 Z"
-                    />
-                </svg>
+                    <div className="max-w-4xl mx-auto px-6 text-center">
+                        <h1 className="text-5xl font-light text-white mb-4 tracking-wide">
+                            Safe Travel
+                        </h1>
+                        <p className="text-white/80 text-lg font-light">
+                            Find the safest route to your destination
+                        </p>
+                        <div className="mt-6 flex justify-center">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                                <span className="text-white/90 text-sm font-medium">
+                                    {userLocation ? "Location Active" : "Locating..."}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Floating Form */}
+                <div className="absolute inset-x-0" style={{ top: "65%" }}>
+                    <div className="max-w-4xl mx-auto px-6">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        From
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={source}
+                                        onChange={(e) => setSource(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                        placeholder="Enter starting point"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        To
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={destination}
+                                        onChange={(e) => setDestination(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                        placeholder="Enter destination"
+                                    />
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <button
+                                    onClick={handleSubmit}
+                                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
+                                >
+                                    Find Safest Route
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className="relative z-10 p-8">
-                <h1 className="text-5xl font-extrabold text-center mb-10 text-white drop-shadow-lg">
-                    Travel
-                </h1>
-                <form
-                    onSubmit={handleSubmit}
-                    className="bg-white p-8 rounded-2xl shadow-md max-w-3xl mx-auto mb-8 flex flex-col gap-4 items-end sm:flex-row"
-                >
-                    <label className="flex flex-col font-medium text-slate-700 w-full">
-                        Source:
-                        <input
-                            type="text"
-                            value={source}
-                            onChange={(e) => setSource(e.target.value)}
-                            required
-                            className="w-full p-2 rounded-lg border border-slate-300 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                    </label>
-                    <label className="flex flex-col font-medium text-slate-700 w-full">
-                        Destination:
-                        <input
-                            type="text"
-                            value={destination}
-                            onChange={(e) => setDestination(e.target.value)}
-                            required
-                            className="w-full p-2 rounded-lg border border-slate-300 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                    </label>
-                    <button
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-bold transition-colors whitespace-nowrap w-full sm:w-auto"
-                    >
-                        Show Safest Route
-                    </button>
-                </form>
-                <div className="h-[60vh] w-full max-w-3xl mx-auto transition-transform duration-500 ease-in-out hover:scale-120">
-                    <MapContainer
-                        center={userLocation || [28.6139, 77.209]}
-                        zoom={13}
-                        className="h-full w-full rounded-2xl shadow-md"
-                        style={{ height: "100%", width: "100%" }}
-                    >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-                        />
-                        {userLocation && <Marker position={userLocation} />}
-                        {path.length > 0 && (
-                            <>
-                                <GradientPolyline path={path} />
-                                <Marker position={[path[0].lat, path[0].lng]} />
-                                <Marker position={[path[path.length - 1].lat, path[path.length - 1].lng]} />
-                            </>
-                        )}
-                        <MapUpdater position={userLocation} />
-                    </MapContainer>
+            
+            {/* Map Section */}
+            <div className="mt-30 pb-16">
+                <div className="max-w-5xl mx-auto px-6">
+                    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 transition-transform duration-500 ease-out hover:scale-105">
+                        <MapContainer
+                            center={userLocation || [28.6139, 77.209]}
+                            zoom={13}
+                            className="h-96 w-full"
+                            style={{ height: "28rem" }}
+                        >
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                            {userLocation && <Marker position={userLocation} />}
+                            {path.length > 0 && (
+                                <>
+                                    <GradientPolyline path={path} />
+                                    <Marker position={[path[0].lat, path[0].lng]} />
+                                    <Marker position={[path[path.length - 1].lat, path[path.length - 1].lng]} />
+                                </>
+                            )}
+                            <MapUpdater position={userLocation} />
+                        </MapContainer>
+                    </div>
+                </div>
+            </div>
+
+                        {/* Route Legend */}
+            <div className="pb-16">
+                <div className="max-w-4xl mx-auto px-6">
+                    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                        <h3 className="text-lg font-medium text-gray-800 mb-4">Route Safety Levels</h3>
+                        <div className="flex flex-wrap gap-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-1 rounded-full bg-green-500"></div>
+                                <span className="text-sm text-gray-600">Very Safe</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-1 rounded-full bg-lime-500"></div>
+                                <span className="text-sm text-gray-600">Safe</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-1 rounded-full bg-yellow-500"></div>
+                                <span className="text-sm text-gray-600">Moderate</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-1 rounded-full bg-orange-500"></div>
+                                <span className="text-sm text-gray-600">Caution</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-1 rounded-full bg-red-500"></div>
+                                <span className="text-sm text-gray-600">High Risk</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

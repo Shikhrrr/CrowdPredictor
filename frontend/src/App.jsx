@@ -12,11 +12,19 @@ function App() {
   return (
     <>
       <Navbar />
-      <Home />
+      <div id="#home">
+        <Home />
+      </div>
       <Links />
-      <Travel />
-      <LiveData />
-      <FutureHotspots />
+      <div id="live-data">
+        <LiveData />
+      </div>
+      <div id="travel">
+        <Travel />
+      </div>
+      <div id="future-hotspots">
+        <FutureHotspots />
+      </div>
     </>
   )
 }
