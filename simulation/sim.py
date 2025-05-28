@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use('TkAgg')  # or 'Qt5Agg'
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from scipy.ndimage import gaussian_filter
 
 # Config
 GRID_SIZE = 50
@@ -17,6 +18,16 @@ STEPS = 100
 
 # Initialize grid
 grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=int)
+
+# Initializing figures
+fig1 = plt.figure(1, figsize=(7, 7))
+ax1 = fig1.add_subplot(1, 1, 1)
+
+fig2 = plt.figure(2, figsize=(7, 7))  
+ax2 = fig2.add_subplot(1, 1, 1)
+
+# Cummulative heat
+cumulative_heat = np.zeros((GRID_SIZE, GRID_SIZE), dtype=float)
 
 # Place obstacles
 num_obstacles = int(GRID_SIZE * GRID_SIZE * OBSTACLE_RATIO)
@@ -33,16 +44,7 @@ while len(people) < NUM_PEOPLE:
         grid[x, y] = 1
         people.append((x, y))
 
-def get_empty_neighbors(pos):
-    x, y = pos
-    directions = [(-1,0), (1,0), (0,-1), (0,1)]  # up, down, left, right
-    neighbors = []
-    for dx, dy in directions:
-        nx, ny = x + dx, y + dy
-        if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE and grid[nx, ny] == 0:
-            neighbors.append((nx, ny))
-    return neighbors
-
+# Slightly biased movement pattern to incentivize the formation of clusters
 def get_best_move(pos):
     x, y = pos
     directions = [(-1,0), (1,0), (0,-1), (0,1)]  # up, down, left, right
@@ -71,17 +73,35 @@ def get_best_move(pos):
     else:
         return pos  # stay in place if no options
 
+
 def plot_grid(grid, step):
     cmap = ListedColormap(['white', 'blue', 'black'])  # 0: empty, 1: people, -1: obstacle
     display = np.copy(grid)
     display[display == -1] = 2  # Set obstacle color index to 2
-    plt.imshow(display, cmap=cmap)
-    plt.title(f"Mela Crowd Movement - Step {step}")
+
+    ax1.clear()
+    ax1.imshow(display, cmap=cmap)
+    ax1.set_title(f"Mela Crowd Movement - Step {step}")
     plt.pause(0.2)
-    plt.clf()
+
+
+def plot_blurry_heatmap(heat_data, step, sigma=1.5):
+    global fig2, ax2  # So we can recreate ax2 after clearing
+
+    fig2.clf()  # Clear entire figure
+    ax2 = fig2.add_subplot(1, 1, 1)  # Recreate axis
+
+    blurred = gaussian_filter(heat_data, sigma=sigma)
+
+    im = ax2.imshow(blurred, cmap='hot', interpolation='bilinear')  # 'hot' = red-orange
+    ax2.set_title(f"Blurry Heatmap - Step {step}")
+    ax2.axis('off')
+
+    # Add new colorbar
+    fig2.colorbar(im, ax=ax2)
+    plt.pause(0.2) 
 
 # Run simulation
-plt.figure(figsize=(7, 7))
 for step in range(STEPS):
     new_grid = np.copy(grid)
     new_positions = []
@@ -94,7 +114,9 @@ for step in range(STEPS):
         new_pos = get_best_move(pos)
         new_grid[new_pos] = 1
         new_positions.append(new_pos)
+        cumulative_heat[x, y] += 1
 
     grid = new_grid
     people = new_positions
     plot_grid(grid, step)
+    plot_blurry_heatmap(cumulative_heat, step)
