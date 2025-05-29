@@ -7,7 +7,7 @@ const navLinks = [
     { name: "Future Hotspots", link: "#future-hotspots" },
     { name: "About your location", link: "#about-your-location" },
     { name: "Nearby Services", link: "#nearby-services" },
-    { name: "For Emergency Personnel", link: "#emergency-personnel" },
+    { name: "For Emergency Personnel", link: "#emergency-personell" },
 ];
 
 // Smooth scroll with animation
