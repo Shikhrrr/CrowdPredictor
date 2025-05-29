@@ -3,7 +3,9 @@
 # Crowd Simulation with grid size, num people, steps, obstacle ratio etc.
 # Cummulative heatmap generation
 # Prediction of future crowd movement using LSTM
+# Density Aware Shortest Path Calculation
 
+import os
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')  # or 'Qt5Agg'
@@ -12,7 +14,8 @@ from matplotlib.colors import ListedColormap
 from scipy.ndimage import gaussian_filter
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Reshape
-
+from pathfinding_system import PathfindingSystem
+from pathfinding_system import plot_pathfinding_results
 
 # Config
 GRID_SIZE = 50
@@ -21,6 +24,10 @@ OBSTACLE_RATIO = 0.02
 STEPS = 100
 LSTM_START_STEP = 50
 SEQUENCE_LENGTH = 10
+
+# Define start and goal for path finding
+start = (2, 2)
+goal = (47, 30)
 
 # Grid cell meanings
 # 0: empty, 
@@ -274,7 +281,7 @@ def plot_grid(grid, step):
     ax1.axis('off')
     plt.pause(0.2)
 
-def plot_blurry_heatmap(heat_data, step, sigma=1.5):
+def plot_blurry_heatmap(heat_data, step, sigma=1.5, output_dir="heatmaps"):
     global fig2, ax2  # So we can recreate ax2 after clearing
 
     fig2.clf()  # Clear entire figure
@@ -288,6 +295,46 @@ def plot_blurry_heatmap(heat_data, step, sigma=1.5):
     # Add new colorbar
     fig2.colorbar(im, ax=ax2)
     plt.pause(0.2)
+
+def save_heatmap(heat_data, step, output_dir="heatmaps"):
+    os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
+    
+    plt.figure(figsize=(7, 7))
+    blurred = gaussian_filter(heat_data, sigma=1.5)
+    plt.imshow(blurred, cmap='hot', interpolation='bilinear')
+    
+    # Remove axes and border
+    plt.axis('off')
+    plt.gca().set_position([0, 0, 1, 1])  # Expand image to full figure without margins
+
+    # Save as PNG without padding or extra borders
+    filepath = os.path.join(output_dir, f"heatmap_step_{step:03d}.png")
+    plt.savefig(filepath, bbox_inches='tight', pad_inches=0)
+    plt.close()
+
+def path_finding(grid, start, goal):
+    #----------------------------------------path-------------------------------------------------------
+    # Initialize pathfinding system
+    pathfinder = PathfindingSystem(GRID_SIZE)
+
+    # Calculate density grid
+    density_grid = pathfinder.calculate_density_grid(grid)
+
+    # Find multiple paths
+    paths_data = pathfinder.find_multiple_paths(start, goal, grid)
+
+    # Smooth the best path
+    if paths_data:
+        best_path = min(paths_data, key=lambda x: x['cost'])
+        smoothed_path = pathfinder.smooth_path(best_path['path'], grid)
+        paths_data.append({
+            'path': smoothed_path,
+            'cost': best_path['cost'] * 0.95,  # Approximate cost reduction
+            'strategy': 'Smoothed Best Path'
+        })
+
+    # Display results
+    plot_pathfinding_results(grid, density_grid, paths_data, 1, start, goal)
 
 
 # Storage for grid history and accuracy tracking
@@ -321,11 +368,15 @@ for step in range(STEPS):
     grid = new_grid
     people = new_positions
 
+
+    #-----------------------------------------------------------------------------------------------------
+
     # Handle LSTM prediction after step 10
     if step < LSTM_START_STEP:
         # Show only real simulation
         plot_grid(grid, step)
         plot_blurry_heatmap(cumulative_heat, step)
+        save_heatmap(cumulative_heat, step)
     else:
         # Start LSTM predictions
         if step == LSTM_START_STEP:
@@ -366,15 +417,20 @@ for step in range(STEPS):
                 # Display both grids with accuracy info
                 plot_dual_grid(grid, pred_grid, step, step + 1, accuracy_metrics)
                 plot_blurry_heatmap(cumulative_heat, step)
+                save_heatmap(cumulative_heat, step)
             else:
                 plot_grid(grid, step)
                 plot_blurry_heatmap(cumulative_heat, step)
+                save_heatmap(cumulative_heat, step)
         else:
             plot_grid(grid, step)
             plot_blurry_heatmap(cumulative_heat, step)
+            save_heatmap(cumulative_heat, step)
+
+# Finding the path and plotting it
+path_finding(grid, start, goal)
 
 print("Simulation completed!")
-
 # Final accuracy summary
 if len(accuracy_scores) > 0:
     print("\n" + "="*60)
