@@ -26,7 +26,7 @@ const Home = () => {
     };
 
     return (
-        <div className="w-screen h-screen flex flex-col md:flex-row overflow-hidden relative">
+        <div className="w-screen h-screen flex flex-col md:flex-row overflow-hidden relative -mt-4">
             {/* Animated Background */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-red-500 to-purple-600"></div>

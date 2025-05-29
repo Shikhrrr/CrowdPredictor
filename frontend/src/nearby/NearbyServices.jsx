@@ -153,11 +153,9 @@ const NearbyServices = () => {
         { id: 1, name: "Central Hospital", latitude: 28.6129, longitude: 77.229 },
         { id: 2, name: "City Police Station", latitude: 28.6159, longitude: 77.219 },
         { id: 3, name: "Metro Station", latitude: 28.6149, longitude: 77.224 },
-        { id: 4, name: "Public Library", latitude: 28.6169, longitude: 77.214 },
-        { id: 5, name: "Shopping Mall", latitude: 28.6109, longitude: 77.227 },
-        { id: 6, name: "Fire Station", latitude: 28.6179, longitude: 77.217 },
-        { id: 7, name: "Bus Terminal", latitude: 28.6119, longitude: 77.221 },
-        { id: 8, name: "Community Center", latitude: 28.6189, longitude: 77.211 },
+        { id: 4, name: "Fire Station", latitude: 28.6179, longitude: 77.217 },
+        { id: 5, name: "Bus Terminal", latitude: 28.6119, longitude: 77.221 },
+        { id: 6, name: "Community Center", latitude: 28.6189, longitude: 77.211 },
     ];
 
     // Handle location change from map

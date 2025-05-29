@@ -14,7 +14,7 @@ const cardData = [
     { name: "Travel", href: "#travel", img: IconTravel, delay: "200ms" },
     { name: "Future Hotspots", href: "#future-hotspots", img: IconFutureHotspots, delay: "300ms" },
     { name: "Nearby Services", href: "#nearby-services", img: IconNearbyServices, delay: "400ms" },
-    { name: "For Emergency Personnel", href: "#emergency-personnel", img: IconEmergencyPersonnel, delay: "500ms" },
+    { name: "For Emergency Personnel", href: "emergency-personell", img: IconEmergencyPersonnel, delay: "500ms" },
 ];
 
 export default function Links() {

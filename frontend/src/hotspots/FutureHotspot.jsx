@@ -8,13 +8,78 @@ const FutureHotspots = () => {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
+    // Sample crowd density data for New Delhi locations
+    const sampleCrowdData = [
+        // High density areas (red)
+        { latitude: 28.6562, longitude: 77.2410, density: "high", location: "Connaught Place" },
+        { latitude: 28.6507, longitude: 77.2334, density: "high", location: "Rajiv Chowk Metro" },
+        { latitude: 28.6139, longitude: 77.2090, density: "high", location: "India Gate" },
+        { latitude: 28.6169, longitude: 77.2295, density: "high", location: "Khan Market" },
+        
+        // Medium density areas (orange)
+        { latitude: 28.5355, longitude: 77.3910, density: "medium", location: "Greater Noida" },
+        { latitude: 28.4595, longitude: 77.0266, density: "medium", location: "Gurgaon Sector 29" },
+        { latitude: 28.7041, longitude: 77.1025, density: "medium", location: "Delhi University" },
+        { latitude: 28.5494, longitude: 77.2499, density: "medium", location: "Nehru Place" },
+        { latitude: 28.6304, longitude: 77.2177, density: "medium", location: "Lajpat Nagar" },
+        
+        // Low density areas (yellow)
+        { latitude: 28.6692, longitude: 77.4538, density: "low", location: "Noida Sector 18" },
+        { latitude: 28.4089, longitude: 77.3178, density: "low", location: "Faridabad" },
+        { latitude: 28.7196, longitude: 77.0369, density: "low", location: "Rohini" },
+        { latitude: 28.5167, longitude: 77.0833, density: "low", location: "Dwarka" },
+        { latitude: 28.6000, longitude: 77.3667, density: "low", location: "Mayur Vihar" },
+        
+        // Very low density areas (green)
+        { latitude: 28.7500, longitude: 77.1167, density: "very-low", location: "Outer Delhi" },
+        { latitude: 28.4744, longitude: 77.5040, density: "very-low", location: "Greater Noida West" },
+        { latitude: 28.3974, longitude: 77.0728, density: "very-low", location: "Manesar" },
+        { latitude: 28.8386, longitude: 77.0851, density: "very-low", location: "Narela" }
+    ];
+
+    const getDensityColor = (density) => {
+        switch (density) {
+            case "high": return { fill: "#dc2626", stroke: "#b91c1c" }; // Red
+            case "medium": return { fill: "#ea580c", stroke: "#c2410c" }; // Orange
+            case "low": return { fill: "#eab308", stroke: "#ca8a04" }; // Yellow
+            case "very-low": return { fill: "#16a34a", stroke: "#15803d" }; // Green
+            default: return { fill: "#6b7280", stroke: "#4b5563" }; // Gray
+        }
+    };
+
+    const getDensityRadius = (density) => {
+        switch (density) {
+            case "high": return 500;
+            case "medium": return 400;
+            case "low": return 300;
+            case "very-low": return 200;
+            default: return 250;
+        }
+    };
+
     const fetchPredictions = async () => {
         setLoading(true);
         setSubmitted(true);
         try {
-            const res = await fetch(`/api/predict-hotspots?minutes=${futureTime}`);
-            const data = await res.json();
-            setPredictedHotspots(data);
+            // Simulate API call with sample data
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Generate some predicted hotspots based on time
+            const predictions = [];
+            if (futureTime >= 30) {
+                predictions.push(
+                    { latitude: 28.6328, longitude: 77.2197, intensity: "high" },
+                    { latitude: 28.6745, longitude: 77.1200, intensity: "medium" }
+                );
+            }
+            if (futureTime >= 60) {
+                predictions.push(
+                    { latitude: 28.5921, longitude: 77.0460, intensity: "medium" },
+                    { latitude: 28.5672, longitude: 77.3507, intensity: "low" }
+                );
+            }
+            
+            setPredictedHotspots(predictions);
         } catch {
             setPredictedHotspots([]);
         }
@@ -47,17 +112,12 @@ const FutureHotspots = () => {
 
             {/* Floating elements */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {/* Large floating circles */}
                 <div className="absolute top-20 left-10 w-32 h-32 bg-orange-200 opacity-20 rounded-full animate-float-slow"></div>
                 <div className="absolute top-40 right-20 w-24 h-24 bg-orange-300 opacity-25 rounded-full animate-float-medium"></div>
                 <div className="absolute top-60 left-1/3 w-16 h-16 bg-orange-400 opacity-30 rounded-full animate-float-fast"></div>
-                
-                {/* Small floating dots */}
                 <div className="absolute top-32 right-1/3 w-8 h-8 bg-orange-500 opacity-40 rounded-full animate-float-reverse"></div>
                 <div className="absolute top-80 left-1/4 w-6 h-6 bg-orange-600 opacity-35 rounded-full animate-float-slow"></div>
                 <div className="absolute top-96 right-1/4 w-10 h-10 bg-orange-300 opacity-25 rounded-full animate-float-medium"></div>
-                
-                {/* Traffic-themed shapes */}
                 <div className="absolute top-48 left-20 w-12 h-12 bg-orange-400 opacity-30 rotate-45 animate-float-fast"></div>
                 <div className="absolute top-72 right-32 w-8 h-8 bg-orange-500 opacity-35 rounded animate-float-reverse"></div>
             </div>
@@ -70,7 +130,7 @@ const FutureHotspots = () => {
                         <span className="font-medium text-orange-600 ml-3">Hotspots</span>
                     </h1>
                     <p className="text-gray-600 text-lg font-light max-w-md mx-auto">
-                        Predict traffic patterns and congestion areas
+                        Predict traffic patterns and analyze crowd density
                     </p>
                     <div className="mt-4 w-16 h-0.5 bg-orange-500 mx-auto"></div>
                 </div>
@@ -83,7 +143,6 @@ const FutureHotspots = () => {
                                 Prediction timeframe
                             </label>
                             
-                            {/* Custom styled range input */}
                             <div className="space-y-3">
                                 <input
                                     type="range"
@@ -120,61 +179,116 @@ const FutureHotspots = () => {
                     </div>
                 )}
 
-                {/* Map section */}
-                {submitted && !loading && (
-                    <div className="max-w-4xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4 transition-all duration-300 hover:shadow-md backdrop-blur-sm bg-white/95">
-                            <div className="h-[60vh] w-full rounded-lg overflow-hidden transition-transform duration-500 ease-out hover:scale-105">
-                                <MapContainer
-                                    center={[28.6139, 77.209]} // Default center: Delhi
-                                    zoom={13}
-                                    className="h-full w-full"
-                                >
-                                    <TileLayer
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                        attribution='&copy; OpenStreetMap contributors'
-                                    />
-                                    {predictedHotspots.map((spot, idx) => (
+                {/* Map section - Always visible with crowd data */}
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4 transition-all duration-300 hover:shadow-md backdrop-blur-sm bg-white/95">
+                        <div className="h-[60vh] w-full rounded-lg overflow-hidden transition-transform duration-500 ease-out hover:scale-105">
+                            <MapContainer
+                                center={[28.6139, 77.209]} // Delhi center
+                                zoom={11}
+                                className="h-full w-full"
+                            >
+                                <TileLayer
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    attribution='&copy; OpenStreetMap contributors'
+                                />
+                                
+                                {/* Crowd density circles */}
+                                {sampleCrowdData.map((spot, idx) => {
+                                    const colors = getDensityColor(spot.density);
+                                    return (
                                         <Circle
-                                            key={idx}
+                                            key={`crowd-${idx}`}
                                             center={[spot.latitude, spot.longitude]}
-                                            radius={300}
+                                            radius={getDensityRadius(spot.density)}
                                             pathOptions={{
-                                                fillColor: "#f97316",
-                                                fillOpacity: 0.4,
-                                                color: "#ea580c",
+                                                fillColor: colors.fill,
+                                                fillOpacity: 0.3,
+                                                color: colors.stroke,
                                                 weight: 2,
-                                                opacity: 0.8,
+                                                opacity: 0.7,
                                             }}
                                         />
-                                    ))}
-                                </MapContainer>
-                            </div>
-                            
-                            {/* Map legend */}
-                            {predictedHotspots.length > 0 && (
-                                <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-600">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-4 h-4 bg-orange-500 opacity-40 rounded-full"></div>
-                                        <span>Predicted hotspot areas</span>
-                                    </div>
+                                    );
+                                })}
+                                
+                                {/* Predicted hotspots (shown after prediction) */}
+                                {submitted && predictedHotspots.map((spot, idx) => (
+                                    <Circle
+                                        key={`prediction-${idx}`}
+                                        center={[spot.latitude, spot.longitude]}
+                                        radius={400}
+                                        pathOptions={{
+                                            fillColor: "#8b5cf6",
+                                            fillOpacity: 0.5,
+                                            color: "#7c3aed",
+                                            weight: 3,
+                                            opacity: 0.9,
+                                            dashArray: "10, 10"
+                                        }}
+                                    />
+                                ))}
+                            </MapContainer>
+                        </div>
+                        
+                        {/* Enhanced map legend */}
+                        <div className="mt-6 bg-gray-50 rounded-lg p-4">
+                            <h3 className="text-sm font-semibold text-gray-700 mb-3">Legend</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                                {/* Crowd density legend */}
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-4 h-4 bg-red-600 opacity-60 rounded-full"></div>
+                                    <span className="text-gray-600">High Crowd Density</span>
                                 </div>
-                            )}
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-4 h-4 bg-orange-600 opacity-60 rounded-full"></div>
+                                    <span className="text-gray-600">Medium Density</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-4 h-4 bg-yellow-500 opacity-60 rounded-full"></div>
+                                    <span className="text-gray-600">Low Density</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-4 h-4 bg-green-600 opacity-60 rounded-full"></div>
+                                    <span className="text-gray-600">Very Low Density</span>
+                                </div>
+                                {submitted && predictedHotspots.length > 0 && (
+                                    <div className="flex items-center space-x-2 md:col-span-2">
+                                        <div className="w-4 h-4 bg-purple-600 opacity-70 rounded-full border-2 border-dashed border-purple-700"></div>
+                                        <span className="text-gray-600">Predicted Future Hotspots</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                )}
+                </div>
 
-                {/* No results message */}
-                {submitted && !loading && predictedHotspots.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="text-gray-500 text-lg">
-                            No hotspots predicted for the selected timeframe
+                {/* Results summary */}
+                {submitted && !loading && (
+                    <div className="max-w-4xl mx-auto mt-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6 backdrop-blur-sm bg-white/95">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Analysis Summary</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="font-medium text-gray-700">Current High Density Areas:</span>
+                                    <p className="text-gray-600 mt-1">Connaught Place, Rajiv Chowk Metro, India Gate, Khan Market</p>
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-700">Predicted Hotspots ({futureTime} min):</span>
+                                    <p className="text-gray-600 mt-1">
+                                        {predictedHotspots.length > 0 
+                                            ? `${predictedHotspots.length} new congestion areas identified`
+                                            : "No significant changes predicted"
+                                        }
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Custom styles for range slider and animations */}
+            {/* Custom styles */}
             <style jsx>{`
                 .slider::-webkit-slider-thumb {
                     appearance: none;
